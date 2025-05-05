@@ -1,0 +1,84 @@
+{
+  "create_board": {
+    "request": {
+      "method": "POST",
+      "url": "/boards",
+      "body": {
+        "title": "First Board",
+        "content": "Welcome to the board!",
+        "author": "Alice"
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": 1,
+        "title": "First Board",
+        "content": "Welcome to the board!",
+        "author": "Alice"
+      }
+    }
+  },
+  "get_all_boards": {
+    "request": {
+      "method": "GET",
+      "url": "/boards"
+    },
+    "response": {
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "title": "First Board",
+          "content": "Welcome to the board!",
+          "author": "Alice"
+        }
+      ]
+    }
+  },
+  "get_board_by_id": {
+    "request": {
+      "method": "GET",
+      "url": "/boards/1"
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "id": 1,
+        "title": "First Board",
+        "content": "Welcome to the board!",
+        "author": "Alice"
+      }
+    }
+  },
+  "update_board": {
+    "request": {
+      "method": "PUT",
+      "url": "/boards/1",
+      "body": {
+        "title": "Updated Board",
+        "content": "Updated content",
+        "author": "Alice"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "id": 1,
+        "title": "Updated Board",
+        "content": "Updated content",
+        "author": "Alice"
+      }
+    }
+  },
+  "delete_board": {
+    "request": {
+      "method": "DELETE",
+      "url": "/boards/1"
+    },
+    "response": {
+      "status": 204,
+      "body": {}
+    }
+  }
+}
