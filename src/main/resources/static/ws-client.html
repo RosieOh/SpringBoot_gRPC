@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Notification Test</title>
+</head>
+<body>
+<h1>WebSocket Notification</h1>
+<ul id="messages"></ul>
+
+<script>
+    const socket = new WebSocket("ws://localhost:8080/ws/notifications");
+
+    socket.onmessage = function (event) {
+        const msg = JSON.parse(event.data);
+        const li = document.createElement("li");
+        li.innerText = `[${msg.type}] ${msg.title} by ${msg.author}`;
+        document.getElementById("messages").appendChild(li);
+    };
+</script>
+</body>
+</html>
