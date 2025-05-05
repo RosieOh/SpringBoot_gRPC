@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.11'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'com'
@@ -27,16 +27,17 @@ dependencies {
     // Spring WebFlux (Netty 포함)
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    // 기존 의존성 유지
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    // spring-boot-starter-web 제거 또는 주석 처리 (WebFlux와 충돌 방지)
-    // implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Springdoc OpenAPI for WebFlux
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0'
 
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
-    
+
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
