@@ -1,20 +1,21 @@
 package com.netty.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
+@Table("boards")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Board {
+
+    @Id
     private Long id;
+
     private String title;
     private String content;
     private String author;
-
-    public Board(Long id, String title, String content, String author) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.author = author;
-    }
 }
