@@ -1,77 +1,58 @@
 package com.netty.global.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.WebSocketMessage;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 public class NotificationWebSocketHandler implements WebSocketHandler {
 
-    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+    private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         sessions.add(session);
-        return session.receive() // 클라이언트 메시지는 무시
-                .doFinally(signal -> sessions.remove(session))
-                .then(); // 연결만 유지
+        log.info("Client connected: {}", session.getId());
+
+        return session.receive()
+                .doOnNext(message -> log.info("Received: {}", message.getPayloadAsText()))
+                .doFinally(signal -> {
+                    sessions.remove(session);
+                    log.info("Client disconnected: {}", session.getId());
+                })
+                .then(); // 수신만 처리
     }
 
     public void broadcast(String title, String author) {
-        Message message = new Message(title, author, System.currentTimeMillis());
-
         try {
-            String jsonMessage = objectMapper.writeValueAsString(message);
-            for (WebSocketSession session : sessions) {
-                WebSocketMessage msg = session.textMessage(jsonMessage);
-                session.send(Mono.just(msg)).subscribe();
+            String json = objectMapper.writeValueAsString(
+                    new NotificationMessage("새 게시글", title, author)
+            );
+
+            WebSocketMessage message = sessions.stream()
+                    .findAny() // any 하나 꺼내서 session.getTextMessage 만들어야 함
+                    .map(session -> session.textMessage(json))
+                    .orElse(null);
+
+            if (message != null) {
+                Flux.fromIterable(sessions)
+                        .flatMap(session -> session.send(Mono.just(session.textMessage(json))))
+                        .subscribe();
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Broadcast error: {}", e.getMessage());
         }
     }
 
-    static class Message {
-        private String title;
-        private String author;
-        private long timestamp;
-
-        public Message(String title, String author, long timestamp) {
-            this.title = title;
-            this.author = author;
-            this.timestamp = timestamp;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getAuthor() {
-            return author;
-        }
-
-        public void setAuthor(String author) {
-            this.author = author;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-    }
+    private record NotificationMessage(String type, String title, String author) {}
 }
