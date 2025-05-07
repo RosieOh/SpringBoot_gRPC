@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package com.netty;
+
+service ChatService {
+  rpc sendMessage (ChatMessage) returns (ChatResponse);
+  rpc getMessages (Empty) returns (stream ChatMessage);
+}
+
+message ChatMessage {
+  string username = 1;
+  string message = 2;
+  int64 timestamp = 3;
+}
+
+message ChatResponse {
+  string message = 1;
+}
+
+message Empty {}
